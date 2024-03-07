@@ -33,9 +33,13 @@ private:
 	void processEvents();
 	void processKeys(sf::Event t_event);
 	void update(sf::Time t_deltaTime);
+	void gameUpdate();
+	void menuUpdate();
 	void moveScreen();
 	void levelEditingUpdate();
 	void render();
+	void init();
+	void brickDraw();
 	
 	void setupFontAndText();
 	void setupSprite();

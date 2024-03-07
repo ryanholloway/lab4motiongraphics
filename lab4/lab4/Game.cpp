@@ -110,15 +110,115 @@ void Game::update(sf::Time t_deltaTime)
 		moveScreen();
 		break;
 	case GameMode::Playing:
+		gameUpdate();
 		break;
 	case GameMode::MainMenu:
+		menuUpdate();
 		break;
 	default:
 		break;
 	}
+	
+
+	
 
 
+}
 
+void Game::gameUpdate()
+{
+	
+		for (int row = 0; row < numRows; row++)
+		{
+			for (int col = 0; col < numCols; col++)
+			{
+
+				level[col][row].move(-3.5, 0);
+				//spritesheet.setPosition(playerShape.getPosition());
+			}
+
+		}
+
+
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) && velocityY == 0)
+		{
+			velocityY = -11.8;
+		}
+
+		velocityY = velocityY + gravity;
+		playerShape.move(0, velocityY);
+
+
+		gravity = 0.6;
+
+		for (int row = 0; row < numRows; row++)
+		{
+			for (int col = 0; col < numCols; col++)
+			{
+				if (velocityY >= 0)
+				{
+
+					if (levelData[col][row] == 1)
+					{
+						if (playerShape.getGlobalBounds().intersects(level[col][row].getGlobalBounds()))
+						{
+							if (playerShape.getPosition().y < level[col][row].getPosition().y)
+							{
+								gravity = 0;
+								velocityY = 0;
+								playerShape.setPosition(playerShape.getPosition().x, level[col][row].getPosition().y);
+								playerShape.move(0, -playerShape.getGlobalBounds().height);
+								break;
+							}
+							else {
+								init();
+							}
+						}
+					}
+
+				}
+				if (velocityY < 0)
+				{
+
+					if (levelData[col][row] == 1)
+					{
+						if (playerShape.getGlobalBounds().intersects(level[col][row].getGlobalBounds()))
+						{
+							init();
+						}
+					}
+				}
+
+				if (levelData[col][row] == 100)
+				{
+					if (playerShape.getGlobalBounds().intersects(level[col][row].getGlobalBounds()))
+					{
+						std::cout << "Win";			
+					}
+				}
+				
+
+
+			}
+
+			if (playerShape.getPosition().y > 600)
+			{
+
+				init();
+			}
+
+		}
+}
+
+void Game::menuUpdate()
+{
+	for (int row = 0; row < numRows; row++)
+	{
+		for (int col = 0; col < numCols; col++)
+		{
+			level[col][row].setOutlineThickness(0.0f);
+		}
+	}
 }
 
 void Game::moveScreen()
@@ -130,7 +230,7 @@ void Game::moveScreen()
 			for (int col = 0; col < numCols; col++)
 			{
 
-				level[col][row].move(3.5, 0);
+				level[col][row].move(6.5, 0);
 			}
 		}
 	}
@@ -141,7 +241,7 @@ void Game::moveScreen()
 			for (int col = 0; col < numCols; col++)
 			{
 
-				level[col][row].move(-3.5, 0);
+				level[col][row].move(-6.5, 0);
 			}
 		}
 	}
@@ -212,7 +312,27 @@ void Game::levelEditingUpdate()
 void Game::render()
 {
 	m_window.clear(sf::Color::Black);
-	
+	switch (gamemode)
+	{
+	case GameMode::LevelEditing:
+		levelEditingUpdate();
+		moveScreen();
+		brickDraw();
+		break;
+	case GameMode::Playing:
+		brickDraw();
+		gameUpdate();
+		break;
+	case GameMode::MainMenu:
+		menuUpdate();
+		break;
+	default:
+		break;
+	}
+}
+
+void Game::brickDraw()
+{
 	for (int row = 0; row < numRows; row++)
 	{
 		for (int col = 0; col < numCols; col++)
@@ -221,8 +341,6 @@ void Game::render()
 
 		}
 	}
-
-	m_window.display();
 }
 
 /// <summary>
@@ -264,5 +382,29 @@ void Game::setupSprite()
 			}
 		}
 		std::cout << std::endl;
+	}
+}
+
+void Game::init()
+{
+	for (int row = 0; row < numRows; row++)
+	{
+		for (int col = 0; col < numCols; col++)
+		{
+
+			if (levelData[col][row] == 1)
+			{
+				level[col][row].setSize(sf::Vector2f(70, 30));
+				level[col][row].setPosition(row * 70, col * 30);
+				level[col][row].setFillColor(sf::Color::Red);
+
+			}
+			if (levelData[col][row] == 0)
+			{
+				level[col][row].setSize(sf::Vector2f(70, 30));
+				level[col][row].setPosition(row * 70, col * 30);
+				level[col][row].setFillColor(sf::Color::Transparent);
+			}
+		}
 	}
 }
