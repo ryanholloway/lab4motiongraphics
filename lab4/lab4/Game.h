@@ -42,7 +42,10 @@ private:
 	void brickDraw();
 	
 	void setupFontAndText();
-	void setupSprite();
+	void levelInit();
+
+	bool winTilePlacement{ false };
+
 	GameMode gamemode{ GameMode::LevelEditing };
 	sf::RenderWindow m_window; // main SFML window
 	sf::Font m_ArialBlackfont; // font used by message
@@ -52,11 +55,13 @@ private:
 	sf::RectangleShape background;
 
 	float velocityX = 0, velocityY = 0, gravity = 0.3;
-
+	int counter = 0;
 	static const int numRows = 45;
 	static const int numCols = 20;
 	TileInfo tilesInfo[20][45];
 	sf::RectangleShape level[numCols][numRows];
+
+	sf::Clock clock;
 
 	int levelData[numCols][numRows] =
 	{

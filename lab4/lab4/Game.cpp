@@ -8,7 +8,8 @@
 #include "Game.h"
 #include <iostream>
 
-
+using namespace std;
+using namespace sf;
 
 /// <summary>
 /// default constructor
@@ -21,7 +22,7 @@ Game::Game() :
 	m_exitGame{false} //when true game will exit
 {
 	setupFontAndText(); // load font 
-	setupSprite(); // load texture
+	init(); // load texture
 }
 
 /// <summary>
@@ -91,6 +92,13 @@ void Game::processKeys(sf::Event t_event)
 	{
 		m_exitGame = true;
 	}
+	if (sf::Keyboard::W == t_event.key.code)
+	{
+		if (gamemode == GameMode::LevelEditing)
+		{
+			winTilePlacement = !winTilePlacement;
+		}
+	}
 }
 
 /// <summary>
@@ -108,6 +116,7 @@ void Game::update(sf::Time t_deltaTime)
 	case GameMode::LevelEditing:
 		levelEditingUpdate();
 		moveScreen();
+		levelInit();
 		break;
 	case GameMode::Playing:
 		gameUpdate();
@@ -118,20 +127,29 @@ void Game::update(sf::Time t_deltaTime)
 	default:
 		break;
 	}
-	
-
-	
-
 
 }
 
 void Game::gameUpdate()
 {
+
+	if (clock.getElapsedTime().asMilliseconds() <= 1000)
+	{
+		counter++;
+		cout << counter << endl;
+	}
+	else
+	{
+		counter = 0;
+		clock.restart();
+	}
 	
 		for (int row = 0; row < numRows; row++)
 		{
 			for (int col = 0; col < numCols; col++)
 			{
+				/*std::cout << level[0][0].getPosition().x << std::endl;*/
+				
 
 				level[col][row].move(-3.5, 0);
 				//spritesheet.setPosition(playerShape.getPosition());
@@ -203,7 +221,6 @@ void Game::gameUpdate()
 
 			if (playerShape.getPosition().y > 600)
 			{
-
 				init();
 			}
 
@@ -267,6 +284,12 @@ void Game::levelEditingUpdate()
 				level[col][row].setPosition(level[col][row].getPosition());
 				level[col][row].setFillColor(sf::Color::Transparent);
 			}
+			if (levelData[col][row] == 100)
+			{
+				level[col][row].setSize(sf::Vector2f(70, 30));
+				level[col][row].setPosition(level[col][row].getPosition());
+				level[col][row].setFillColor(sf::Color::Cyan);
+			}
 		}
 	}
 
@@ -281,7 +304,15 @@ void Game::levelEditingUpdate()
 				{
 					if (level[col][row].getGlobalBounds().contains(sf::Mouse::getPosition(m_window).x, sf::Mouse::getPosition(m_window).y))
 					{
-						levelData[col][row] = 1;
+						if (!winTilePlacement)
+						{
+							levelData[col][row] = 1;
+						}
+						else
+						{
+							levelData[col][row] = 100;
+						}
+
 					}
 				}
 			}
@@ -294,7 +325,7 @@ void Game::levelEditingUpdate()
 		{
 			for (int col = 0; col < numCols; col++)
 			{
-				if (levelData[col][row] == 1)
+				if (levelData[col][row] == 1 || levelData[col][row] == 100)
 				{
 					if (level[col][row].getGlobalBounds().contains(sf::Mouse::getPosition(m_window).x, sf::Mouse::getPosition(m_window).y))
 					{
@@ -315,20 +346,24 @@ void Game::render()
 	switch (gamemode)
 	{
 	case GameMode::LevelEditing:
-		levelEditingUpdate();
-		moveScreen();
 		brickDraw();
 		break;
 	case GameMode::Playing:
 		brickDraw();
-		gameUpdate();
+		m_window.draw(playerShape);
 		break;
 	case GameMode::MainMenu:
-		menuUpdate();
 		break;
 	default:
 		break;
 	}
+	
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::H))
+	{
+		gamemode = GameMode::Playing;
+		init();
+	}
+	m_window.display();
 }
 
 void Game::brickDraw()
@@ -358,27 +393,15 @@ void Game::setupFontAndText()
 /// <summary>
 /// load the texture and setup the sprite for the logo
 /// </summary>
-void Game::setupSprite()
+void Game::levelInit()
 {
 	for (int row = 0; row < numRows; row++)
 	{
 		for (int col = 0; col < numCols; col++)
 		{
-
-			if (levelData[col][row] == 1)
-			{
-				level[col][row].setSize(sf::Vector2f(70, 30));
-				level[col][row].setPosition(row * 70, col * 30);
-				level[col][row].setFillColor(sf::Color::Red);
-
-			}
 			if (levelData[col][row] == 0)
 			{
-				level[col][row].setSize(sf::Vector2f(70, 30));
-				level[col][row].setPosition(row * 70, col * 30);
-				level[col][row].setFillColor(sf::Color::Transparent);
 				level[col][row].setOutlineThickness(0.5f);
-				level[col][row].setOutlineColor(sf::Color::White);
 			}
 		}
 		std::cout << std::endl;
@@ -387,6 +410,10 @@ void Game::setupSprite()
 
 void Game::init()
 {
+	playerShape.setFillColor(sf::Color::Blue);
+	playerShape.setSize(sf::Vector2f(20, 20));
+	playerShape.setPosition(160, 500);
+
 	for (int row = 0; row < numRows; row++)
 	{
 		for (int col = 0; col < numCols; col++)
@@ -397,6 +424,8 @@ void Game::init()
 				level[col][row].setSize(sf::Vector2f(70, 30));
 				level[col][row].setPosition(row * 70, col * 30);
 				level[col][row].setFillColor(sf::Color::Red);
+				level[col][row].setOutlineColor(sf::Color::White);
+				level[col][row].setOutlineThickness(0.0f);
 
 			}
 			if (levelData[col][row] == 0)
@@ -404,6 +433,17 @@ void Game::init()
 				level[col][row].setSize(sf::Vector2f(70, 30));
 				level[col][row].setPosition(row * 70, col * 30);
 				level[col][row].setFillColor(sf::Color::Transparent);
+				level[col][row].setOutlineColor(sf::Color::White);
+				level[col][row].setOutlineThickness(0.0f);
+			}
+			if (levelData[col][row] == 100)
+			{
+				level[col][row].setSize(sf::Vector2f(70, 30));
+				level[col][row].setPosition(row * 70, col * 30);
+				level[col][row].setFillColor(sf::Color::Cyan);
+				level[col][row].setOutlineColor(sf::Color::White);
+				level[col][row].setOutlineThickness(0.0f);
+
 			}
 		}
 	}
