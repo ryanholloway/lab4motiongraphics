@@ -99,6 +99,13 @@ void Game::processKeys(sf::Event t_event)
 			winTilePlacement = !winTilePlacement;
 		}
 	}
+	if (sf::Keyboard::S == t_event.key.code)
+	{
+		if (gamemode == GameMode::LevelEditing)
+		{
+			selectingTile = !selectingTile;
+		}
+	}
 }
 
 /// <summary>
@@ -143,6 +150,17 @@ void Game::gameUpdate()
 		counter = 0;
 		clock.restart();
 	}
+
+	frameTime += clock.restart().asSeconds();
+	currentFrame = 2;
+	if (frameTime >= timePerFrame + .5) {
+		currentFrame++;
+		if (currentFrame >= 4)
+			currentFrame = 0;
+
+		frameTime = 0.0f;
+	}
+	playerShape.setTextureRect(frames[currentFrame]);
 	
 		for (int row = 0; row < numRows; row++)
 		{
@@ -205,8 +223,23 @@ void Game::gameUpdate()
 							init();
 						}
 					}
+					
 				}
+				if (levelData[col][row] == 2|| levelData[col][row]==5)
+				{
+					if (playerShape.getGlobalBounds().intersects(level[col][row].getGlobalBounds()))
+					{
+						init();
+					}
+				}
+				if (levelData[col][row] == 3)
+				{
+					if (playerShape.getGlobalBounds().intersects(level[col][row].getGlobalBounds()))
+					{
 
+						velocityY = -20;
+					}
+				}
 				if (levelData[col][row] == 100)
 				{
 					if (playerShape.getGlobalBounds().intersects(level[col][row].getGlobalBounds()))
@@ -276,6 +309,8 @@ void Game::levelEditingUpdate()
 				level[col][row].setSize(sf::Vector2f(70, 30));
 				level[col][row].setPosition(level[col][row].getPosition());
 				level[col][row].setFillColor(sf::Color::Red);
+				level[col][row].setTexture(&mapItemsTexture);
+				level[col][row].setTextureRect(mapItemsI[3]);
 
 			}
 			if (levelData[col][row] == 0)
@@ -290,51 +325,124 @@ void Game::levelEditingUpdate()
 				level[col][row].setPosition(level[col][row].getPosition());
 				level[col][row].setFillColor(sf::Color::Cyan);
 			}
+			if (levelData[col][row] == 2)
+			{
+				level[col][row].setSize(sf::Vector2f(70, 30));
+				level[col][row].setPosition(level[col][row].getPosition());
+				level[col][row].setFillColor(sf::Color(220, 220, 220));
+				level[col][row].setTexture(&mapItemsTexture);
+				level[col][row].setTextureRect(mapItemsI[2]);
+			}
+			if (levelData[col][row] == 3)
+			{
+				level[col][row].setTexture(&mapItemsTexture);
+				level[col][row].setSize(sf::Vector2f(70, 30));
+				level[col][row].setPosition(level[col][row].getPosition());
+				level[col][row].setFillColor(sf::Color::Cyan);
+				level[col][row].setTextureRect(mapItemsI[0]);
+			}
+			if (levelData[col][row] == 5)
+			{
+				level[col][row].setTexture(&mapItemsTexture);
+				level[col][row].setSize(sf::Vector2f(70, 30));
+				level[col][row].setPosition(level[col][row].getPosition());
+				level[col][row].setFillColor(sf::Color(220, 220, 220));
+				level[col][row].setTextureRect(mapItemsI[1]);
+			}
 		}
 	}
 
-
-	if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
+	if (!selectingTile)
 	{
-		for (int row = 0; row < numRows; row++)
+		selecting.setString("Press S to change Tile");
+		if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
 		{
-			for (int col = 0; col < numCols; col++)
+			for (int row = 0; row < numRows; row++)
 			{
-				if (levelData[col][row] == 0)
+				for (int col = 0; col < numCols; col++)
 				{
-					if (level[col][row].getGlobalBounds().contains(sf::Mouse::getPosition(m_window).x, sf::Mouse::getPosition(m_window).y))
+					if (levelData[col][row] == 0)
 					{
-						if (!winTilePlacement)
+						if (level[col][row].getGlobalBounds().contains(sf::Mouse::getPosition(m_window).x, sf::Mouse::getPosition(m_window).y))
 						{
-							levelData[col][row] = 1;
-						}
-						else
-						{
-							levelData[col][row] = 100;
-						}
+							levelData[col][row] = currentTile;
 
+						}
+					}
+				}
+			}
+		}
+
+		if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Right))
+		{
+			for (int row = 0; row < numRows; row++)
+			{
+				for (int col = 0; col < numCols; col++)
+				{
+					if (levelData[col][row]!=0)
+					{
+						if (level[col][row].getGlobalBounds().contains(sf::Mouse::getPosition(m_window).x, sf::Mouse::getPosition(m_window).y))
+						{
+							levelData[col][row] = 0;
+						}
 					}
 				}
 			}
 		}
 	}
-
-	if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Right))
+	else
 	{
-		for (int row = 0; row < numRows; row++)
+		switch (currentTile)
 		{
-			for (int col = 0; col < numCols; col++)
+		case 0:
+			break;
+		case 1:
+			selecting.setString("Selecting Brick Tile\nPress S to Edit Map");
+			break;
+		case 2:
+			selecting.setString("Selecting Spike Tile\nPress S to Edit Map");
+			break;
+		case 3:
+			selecting.setString("Selecting Bounce Tile\nPress S to Edit Map");
+			break;
+		case 4:
+			break;
+		case 5: 
+			selecting.setString("Selecting MultiSpike Tile\nPress S to Edit Map");
+		default:
+			break;
+		}
+		
+		if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
+		{
+			for (int i = 0; i < 4; i++)
 			{
-				if (levelData[col][row] == 1 || levelData[col][row] == 100)
+				if (selectorButton[i].getGlobalBounds().contains(sf::Mouse::getPosition(m_window).x, sf::Mouse::getPosition(m_window).y))
 				{
-					if (level[col][row].getGlobalBounds().contains(sf::Mouse::getPosition(m_window).x, sf::Mouse::getPosition(m_window).y))
+					switch (i)
 					{
-						levelData[col][row] = 0;
+					case 0:
+						currentTile = 3;
+						break;
+					case 1:
+						currentTile = 5;
+						break;
+					case 2:
+						currentTile = 2;
+						break;
+					case 3:
+						currentTile = 1;
+						break;
+					default:
+						currentTile = 1;
+						break;
 					}
 				}
 			}
+			
 		}
 	}
+	
 }
 
 /// <summary>
@@ -347,6 +455,15 @@ void Game::render()
 	{
 	case GameMode::LevelEditing:
 		brickDraw();
+		if (selectingTile)
+		{
+			for (auto& button : selectorButton)
+			{
+				m_window.draw(button);
+			}
+		}
+		m_window.draw(selecting);
+		
 		break;
 	case GameMode::Playing:
 		brickDraw();
@@ -376,6 +493,7 @@ void Game::brickDraw()
 
 		}
 	}
+
 }
 
 /// <summary>
@@ -387,6 +505,21 @@ void Game::setupFontAndText()
 	{
 		std::cout << "problem loading arial black font" << std::endl;
 	}
+	if (!spritesheetTexture.loadFromFile("ASSETS\\IMAGES\\spritesheet.png"))
+	{
+		std::cout << "problem loading spritesheet" << std::endl;
+	}
+	if (!mapItemsTexture.loadFromFile("ASSETS\\IMAGES\\mapItems.png"))
+	{
+		std::cout << "problem loading mapItems" << std::endl;
+	}
+	selecting.setCharacterSize(25U);
+	selecting.setFillColor(sf::Color::Cyan);
+	selecting.setOutlineColor(sf::Color::Red);
+	selecting.setOutlineThickness(2);
+	selecting.setFont(m_ArialBlackfont);
+	selecting.setPosition(275, 40);
+	selecting.setString("Selecting Tile...");
 	
 }
 
@@ -414,6 +547,15 @@ void Game::init()
 	playerShape.setSize(sf::Vector2f(20, 20));
 	playerShape.setPosition(160, 500);
 
+	for (int i = 0; i < 4; i++)
+	{
+		selectorButton[i].setSize(sf::Vector2f(100, 50));
+		selectorButton[i].setPosition(15, (i * 60) + 10);
+		selectorButton[i].setTexture(&mapItemsTexture);
+		selectorButton[i].setTextureRect(mapItemsI[i]);
+		selectorButton[i].setOutlineColor(sf::Color::White);
+		selectorButton[i].setOutlineThickness(1.0f);
+	}
 	for (int row = 0; row < numRows; row++)
 	{
 		for (int col = 0; col < numCols; col++)
@@ -421,11 +563,14 @@ void Game::init()
 
 			if (levelData[col][row] == 1)
 			{
+				
 				level[col][row].setSize(sf::Vector2f(70, 30));
 				level[col][row].setPosition(row * 70, col * 30);
 				level[col][row].setFillColor(sf::Color::Red);
 				level[col][row].setOutlineColor(sf::Color::White);
 				level[col][row].setOutlineThickness(0.0f);
+				level[col][row].setTexture(&mapItemsTexture);
+				level[col][row].setTextureRect(mapItemsI[3]);
 
 			}
 			if (levelData[col][row] == 0)
@@ -436,6 +581,35 @@ void Game::init()
 				level[col][row].setOutlineColor(sf::Color::White);
 				level[col][row].setOutlineThickness(0.0f);
 			}
+			if (levelData[col][row] == 2)
+			{
+				
+				level[col][row].setSize(sf::Vector2f(70, 30));
+				level[col][row].setPosition(row * 70, col * 30);
+				level[col][row].setOutlineColor(sf::Color::White);
+				level[col][row].setOutlineThickness(0.0f);
+				level[col][row].setTexture(&mapItemsTexture);
+				level[col][row].setTextureRect(mapItemsI[2]);
+			}
+			if (levelData[col][row] == 5)
+			{
+
+				level[col][row].setTexture(&mapItemsTexture);
+				level[col][row].setSize(sf::Vector2f(70, 30));
+				level[col][row].setPosition(row * 70, col * 30);
+				level[col][row].setOutlineColor(sf::Color::White);
+				level[col][row].setOutlineThickness(0.0f);
+				level[col][row].setTextureRect(mapItemsI[1]);
+			}
+			if (levelData[col][row] == 3)
+			{
+				level[col][row].setTexture(&mapItemsTexture);
+				level[col][row].setSize(sf::Vector2f(70, 30));
+				level[col][row].setPosition(row * 70, col * 30);
+				level[col][row].setOutlineColor(sf::Color::White);
+				level[col][row].setOutlineThickness(0.0f);
+				level[col][row].setTextureRect(mapItemsI[0]);
+			}
 			if (levelData[col][row] == 100)
 			{
 				level[col][row].setSize(sf::Vector2f(70, 30));
@@ -445,6 +619,7 @@ void Game::init()
 				level[col][row].setOutlineThickness(0.0f);
 
 			}
+		
 		}
 	}
 }

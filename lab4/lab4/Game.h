@@ -87,6 +87,34 @@ private:
 		{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
 	};
 
+	bool selectingTile{ true };
+	int currentTile{ 1 };
+	sf::RectangleShape selectorButton[4];
+	sf::Text selecting;
+	sf::Texture spritesheetTexture;
+	sf::Texture mapItemsTexture;
+	sf::IntRect mapItemsI[4] =
+	{
+		{0,505,287,117}, //bounce
+		{0,0,235,215}, //multispike
+		{0,216,337,136}, //top spike
+		{0,353,301,151} //brick
+	};
+
+	sf::IntRect frames[8] = {
+		{564,0,563,757},
+		{1692,0,563,822},
+		{0,0,563,766},
+		{564,767,563,595},
+		{1128,576,563,642},
+		{1128,0,563,575},
+		{0,767,563,672},
+		{1692,823,563,586}
+	};
+	int currentFrame = 0;
+	float frameTime = 0.0f;
+	float timePerFrame = 0.08f;
+
 };
 
 #endif // !GAME_HPP
