@@ -409,13 +409,17 @@ void Game::levelEditingUpdate()
 			break;
 		case 5: 
 			selecting.setString("Selecting MultiSpike Tile\nPress S to Edit Map");
+			break;
+		case 100:
+			selecting.setString("Selecting Win Tile\nPress S to Edit Map");
+			break;
 		default:
 			break;
 		}
 		
 		if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
 		{
-			for (int i = 0; i < 4; i++)
+			for (int i = 0; i < 5; i++)
 			{
 				if (selectorButton[i].getGlobalBounds().contains(sf::Mouse::getPosition(m_window).x, sf::Mouse::getPosition(m_window).y))
 				{
@@ -432,6 +436,9 @@ void Game::levelEditingUpdate()
 						break;
 					case 3:
 						currentTile = 1;
+						break;
+					case 4:
+						currentTile = 100;
 						break;
 					default:
 						currentTile = 1;
@@ -547,14 +554,22 @@ void Game::init()
 	playerShape.setSize(sf::Vector2f(20, 20));
 	playerShape.setPosition(160, 500);
 
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < 5; i++)
 	{
 		selectorButton[i].setSize(sf::Vector2f(100, 50));
 		selectorButton[i].setPosition(15, (i * 60) + 10);
-		selectorButton[i].setTexture(&mapItemsTexture);
-		selectorButton[i].setTextureRect(mapItemsI[i]);
 		selectorButton[i].setOutlineColor(sf::Color::White);
 		selectorButton[i].setOutlineThickness(1.0f);
+		if (i != 4)
+		{
+			selectorButton[i].setTexture(&mapItemsTexture);
+			selectorButton[i].setTextureRect(mapItemsI[i]);
+		}
+		else
+		{
+			selectorButton[i].setFillColor(sf::Color::Cyan);
+		}
+		
 	}
 	for (int row = 0; row < numRows; row++)
 	{

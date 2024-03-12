@@ -89,7 +89,7 @@ private:
 
 	bool selectingTile{ true };
 	int currentTile{ 1 };
-	sf::RectangleShape selectorButton[4];
+	sf::RectangleShape selectorButton[5];
 	sf::Text selecting;
 	sf::Texture spritesheetTexture;
 	sf::Texture mapItemsTexture;
