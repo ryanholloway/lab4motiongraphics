@@ -88,10 +88,6 @@ void Game::processEvents()
 /// <param name="t_event">key press event</param>
 void Game::processKeys(sf::Event t_event)
 {
-	if (sf::Keyboard::Escape == t_event.key.code)
-	{
-		m_exitGame = true;
-	}
 	if (sf::Keyboard::W == t_event.key.code)
 	{
 		if (gamemode == GameMode::LevelEditing)
@@ -105,6 +101,10 @@ void Game::processKeys(sf::Event t_event)
 		{
 			selectingTile = !selectingTile;
 		}
+	}
+	if (sf::Keyboard::Escape == t_event.key.code)
+	{
+		gamemode = GameMode::MainMenu;
 	}
 }
 
@@ -130,6 +130,8 @@ void Game::update(sf::Time t_deltaTime)
 		break;
 	case GameMode::MainMenu:
 		menuUpdate();
+		break;
+	case GameMode::WinScreen:
 		break;
 	default:
 		break;
@@ -244,7 +246,8 @@ void Game::gameUpdate()
 				{
 					if (playerShape.getGlobalBounds().intersects(level[col][row].getGlobalBounds()))
 					{
-						std::cout << "Win";			
+						std::cout << "Win";
+						gamemode = GameMode::WinScreen;
 					}
 				}
 				
@@ -269,6 +272,44 @@ void Game::menuUpdate()
 			level[col][row].setOutlineThickness(0.0f);
 		}
 	}
+
+	for (int i = 0; i < 3; i++)
+	{
+		MenuText[0].setPosition(MenuButtons[0].getPosition().x + MenuText[0].getGlobalBounds().width * 2, MenuButtons[0].getPosition().y + 20);
+		MenuText[1].setPosition(MenuButtons[1].getPosition().x + MenuText[1].getGlobalBounds().width / 2.0f + 10, MenuButtons[1].getPosition().y + 20);
+		MenuText[2].setPosition(MenuButtons[2].getPosition().x + MenuText[2].getGlobalBounds().width * 2, MenuButtons[2].getPosition().y + 20);
+
+		if (MenuButtons[i].getGlobalBounds().contains(sf::Mouse::getPosition(m_window).x, sf::Mouse::getPosition(m_window).y))
+		{
+			MenuButtons[i].setFillColor(sf::Color::Cyan);
+			if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+			{
+				switch (i)
+				{
+				case 0:
+					if (levelsBeenEdited)
+					{
+						gamemode = GameMode::Playing;
+					}
+					break;
+				case 1:
+					gamemode = GameMode::LevelEditing;
+					break;
+				case 2:
+					exit(1);
+					break;
+				default:
+					break;
+				}
+			}
+		}
+		else
+		{
+			MenuButtons[i].setFillColor(sf::Color::Blue);
+		}
+
+	}
+
 }
 
 void Game::moveScreen()
@@ -290,7 +331,6 @@ void Game::moveScreen()
 		{
 			for (int col = 0; col < numCols; col++)
 			{
-
 				level[col][row].move(-6.5, 0);
 			}
 		}
@@ -324,6 +364,8 @@ void Game::levelEditingUpdate()
 				level[col][row].setSize(sf::Vector2f(70, 30));
 				level[col][row].setPosition(level[col][row].getPosition());
 				level[col][row].setFillColor(sf::Color::Cyan);
+				level[col][row].setTexture(NULL);
+
 			}
 			if (levelData[col][row] == 2)
 			{
@@ -366,7 +408,7 @@ void Game::levelEditingUpdate()
 						if (level[col][row].getGlobalBounds().contains(sf::Mouse::getPosition(m_window).x, sf::Mouse::getPosition(m_window).y))
 						{
 							levelData[col][row] = currentTile;
-
+							levelsBeenEdited = true;
 						}
 					}
 				}
@@ -477,6 +519,17 @@ void Game::render()
 		m_window.draw(playerShape);
 		break;
 	case GameMode::MainMenu:
+		for (auto& buttons : MenuButtons)
+		{
+			m_window.draw(buttons);
+		}
+		for (auto& buttons : MenuText)
+		{
+			m_window.draw(buttons);
+		}
+		break;
+	case GameMode::WinScreen:
+		m_window.draw(winText);
 		break;
 	default:
 		break;
@@ -550,10 +603,32 @@ void Game::levelInit()
 
 void Game::init()
 {
+	levelsBeenEdited = false;
 	playerShape.setFillColor(sf::Color::Blue);
 	playerShape.setSize(sf::Vector2f(20, 20));
 	playerShape.setPosition(160, 500);
+	MenuText[0].setString("Play");
+	MenuText[1].setString("Edit Level");
+	MenuText[2].setString("Exit");
 
+	winText.setFillColor(sf::Color::White);
+	winText.setCharacterSize(50U);
+	winText.setPosition(250, 250);
+	winText.setString("You Win!");
+	winText.setFont(m_ArialBlackfont);
+
+	for (int i = 0; i < 3; i++)
+	{
+		MenuButtons[i].setFillColor(sf::Color::Blue);
+		MenuButtons[i].setPosition(250, (i * 100) + 100);
+		MenuButtons[i].setSize(sf::Vector2f(300, 75));
+		MenuText[i].setPosition(MenuButtons[i].getPosition().x+MenuButtons[i].getGlobalBounds().width/4.0f-MenuText[i].getGlobalBounds().width*2.0f, MenuButtons[i].getPosition().y + 20);
+		MenuText[i].setCharacterSize(25U);
+		MenuText[i].setFillColor(sf::Color::White);
+		MenuText[i].setFont(m_ArialBlackfont);
+		
+	}
+	
 	for (int i = 0; i < 5; i++)
 	{
 		selectorButton[i].setSize(sf::Vector2f(100, 50));

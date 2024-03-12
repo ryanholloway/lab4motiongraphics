@@ -16,7 +16,7 @@ struct TileInfo {
 	sf::Clock timer;    // Timer to track the movement duration
 };
 
-enum class GameMode{LevelEditing, Playing, MainMenu};
+enum class GameMode{LevelEditing, Playing, MainMenu, WinScreen};
 
 class Game
 {
@@ -46,7 +46,7 @@ private:
 
 	bool winTilePlacement{ false };
 
-	GameMode gamemode{ GameMode::LevelEditing };
+	GameMode gamemode{ GameMode::MainMenu };
 	sf::RenderWindow m_window; // main SFML window
 	sf::Font m_ArialBlackfont; // font used by message
 
@@ -90,6 +90,12 @@ private:
 	bool selectingTile{ true };
 	int currentTile{ 1 };
 	sf::RectangleShape selectorButton[5];
+	
+	sf::RectangleShape MenuButtons[3];
+	sf::Text MenuText[3];
+
+	bool levelsBeenEdited{ false };
+	sf::Text winText;
 	sf::Text selecting;
 	sf::Texture spritesheetTexture;
 	sf::Texture mapItemsTexture;
