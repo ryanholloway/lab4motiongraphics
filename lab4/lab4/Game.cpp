@@ -154,10 +154,9 @@ void Game::gameUpdate()
 	}
 
 	frameTime += clock.restart().asSeconds();
-	currentFrame = 2;
-	if (frameTime >= timePerFrame + .5) {
+	if (frameTime >= timePerFrame) {
 		currentFrame++;
-		if (currentFrame >= 4)
+		if (currentFrame >= 8)
 			currentFrame = 0;
 
 		frameTime = 0.0f;
@@ -290,6 +289,7 @@ void Game::menuUpdate()
 					if (levelsBeenEdited)
 					{
 						gamemode = GameMode::Playing;
+						init();
 					}
 					break;
 				case 1:
@@ -361,6 +361,7 @@ void Game::levelEditingUpdate()
 			}
 			if (levelData[col][row] == 100)
 			{
+				levelsBeenEdited = true;
 				level[col][row].setSize(sf::Vector2f(70, 30));
 				level[col][row].setPosition(level[col][row].getPosition());
 				level[col][row].setFillColor(sf::Color::Cyan);
@@ -408,7 +409,6 @@ void Game::levelEditingUpdate()
 						if (level[col][row].getGlobalBounds().contains(sf::Mouse::getPosition(m_window).x, sf::Mouse::getPosition(m_window).y))
 						{
 							levelData[col][row] = currentTile;
-							levelsBeenEdited = true;
 						}
 					}
 				}
@@ -603,10 +603,10 @@ void Game::levelInit()
 
 void Game::init()
 {
-	levelsBeenEdited = false;
-	playerShape.setFillColor(sf::Color::Blue);
 	playerShape.setSize(sf::Vector2f(20, 20));
 	playerShape.setPosition(160, 500);
+	playerShape.setTexture(&spritesheetTexture);
+	playerShape.setTextureRect(frames[0]);
 	MenuText[0].setString("Play");
 	MenuText[1].setString("Edit Level");
 	MenuText[2].setString("Exit");
