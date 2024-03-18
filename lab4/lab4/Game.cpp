@@ -22,6 +22,7 @@ Game::Game() :
 {
 	setupFontAndText(); // load font 
 	init(); // load texture
+	loadLevelData(levelData, filename);
 }
 
 /// <summary>
