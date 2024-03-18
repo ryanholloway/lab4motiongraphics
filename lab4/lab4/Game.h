@@ -1,5 +1,5 @@
 /// <summary>
-/// author Pete Lowe May 2019
+/// author Ryan Holloway
 /// you need to change the above line or lose marks
 /// </summary>
 #ifndef GAME_HPP
@@ -10,6 +10,8 @@
 /// Don't forget the endif at the bottom
 /// </summary>
 #include <SFML/Graphics.hpp>
+#include <iostream>
+#include <fstream>
 struct TileInfo {
 	bool movingUp;      // Flag to indicate the direction of movement
 	bool timerRunning;  // Flag to indicate whether the timer is running
@@ -87,6 +89,11 @@ private:
 		{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
 	};
 
+	
+	void saveLevelData(int levelData[numCols][numRows], const char* filename);
+	void loadLevelData(int levelData[numCols][numRows], const char* filename);
+
+	const char* filename = "ASSETS\\LEVELDATA\\levelData.txt";
 	bool selectingTile{ true };
 	int currentTile{ 1 };
 	sf::RectangleShape selectorButton[5];

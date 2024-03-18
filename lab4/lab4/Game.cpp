@@ -1,6 +1,5 @@
 /// <summary>
-/// @author Peter Lowe
-/// @date May 2019
+/// @author Ryan Holloway
 ///
 /// you need to change the above lines or lose marks
 /// </summary>
@@ -286,14 +285,13 @@ void Game::menuUpdate()
 				switch (i)
 				{
 				case 0:
-					if (levelsBeenEdited)
-					{
-						gamemode = GameMode::Playing;
-						init();
-					}
+					gamemode = GameMode::Playing;
+					saveLevelData(levelData, filename);
+					init();
 					break;
 				case 1:
 					gamemode = GameMode::LevelEditing;
+					loadLevelData(levelData, filename);
 					break;
 				case 2:
 					exit(1);
@@ -598,6 +596,41 @@ void Game::levelInit()
 			}
 		}
 		std::cout << std::endl;
+	}
+}
+
+void Game::saveLevelData(int levelData[numCols][numRows], const char* filename)
+{
+	std::ofstream file(filename);
+	if (file.is_open()) {
+		for (int row = 0; row < numRows; row++) {
+			for (int col = 0; col < numCols; col++) {
+				file << levelData[col][row] << " ";
+			}
+			file << "\n";
+		}
+		file.close();
+		std::cout << "Level data saved to " << filename << std::endl;
+	}
+	else {
+		std::cerr << "Unable to open file " << filename << " for writing!" << std::endl;
+	}
+}
+
+
+void Game::loadLevelData(int levelData[numCols][numRows], const char* filename) {
+	std::ifstream file(filename);
+	if (file.is_open()) {
+		for (int i = 0; i < numRows; ++i) {
+			for (int j = 0; j < numCols; ++j) {
+				file >> levelData[j][i];
+			}
+		}
+		file.close();
+		std::cout << "Level data loaded from " << filename << std::endl;
+	}
+	else {
+		std::cerr << "Unable to open file " << filename << " for reading!" << std::endl;
 	}
 }
 
