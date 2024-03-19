@@ -22,7 +22,7 @@ Game::Game() :
 {
 	setupFontAndText(); // load font 
 	init(); // load texture
-	loadLevelData(levelData, filename);
+	loadLevelData(levelData, level1);
 }
 
 /// <summary>
@@ -104,6 +104,22 @@ void Game::processKeys(sf::Event t_event)
 	}
 	if (sf::Keyboard::Escape == t_event.key.code)
 	{
+		if (gamemode == GameMode::LevelEditing)
+		{
+			switch (levelNo)	
+			{
+			case 0:
+				break;
+			case 1:
+				saveLevelData(levelData, level1);
+				break;
+			case 2:
+				saveLevelData(levelData, level2);
+				break;
+			default:
+				break;
+			}
+		}
 		gamemode = GameMode::MainMenu;
 	}
 }
@@ -137,21 +153,13 @@ void Game::update(sf::Time t_deltaTime)
 		break;
 	}
 
+
+
+
 }
 
 void Game::gameUpdate()
 {
-
-	if (clock.getElapsedTime().asMilliseconds() <= 1000)
-	{
-		counter++;
-		cout << counter << endl;
-	}
-	else
-	{
-		counter = 0;
-		clock.restart();
-	}
 
 	frameTime += clock.restart().asSeconds();
 	if (frameTime >= timePerFrame) {
@@ -287,12 +295,38 @@ void Game::menuUpdate()
 				{
 				case 0:
 					gamemode = GameMode::Playing;
-					saveLevelData(levelData, filename);
+					switch (levelNo)
+					{
+					case 0:
+						cout << "no level selected" << endl;
+						break;
+					case 1:
+						loadLevelData(levelData, level1);
+						break;
+					case 2:
+						loadLevelData(levelData, level2);
+						break;
+					default:
+						break;
+					}
 					init();
 					break;
 				case 1:
 					gamemode = GameMode::LevelEditing;
-					loadLevelData(levelData, filename);
+					switch (levelNo)
+					{
+					case 0:
+						cout << "no level selected" << endl;
+						break;
+					case 1:
+						loadLevelData(levelData, level1);
+						break;
+					case 2:
+						loadLevelData(levelData, level2);
+						break;
+					default:
+						break;
+					}
 					break;
 				case 2:
 					exit(1);
@@ -308,7 +342,25 @@ void Game::menuUpdate()
 		}
 
 	}
-
+	for (int i = 0; i < 2; i++)
+	{
+		if (levelButtons[i].getGlobalBounds().contains(sf::Mouse::getPosition(m_window).x, sf::Mouse::getPosition(m_window).y))
+		{
+			if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+			{
+				
+				levelNo = i+1;
+			}
+		}
+		if (i == levelNo - 1)
+		{
+			levelButtons[i].setFillColor(sf::Color::Red);
+		}
+		else
+		{
+			levelButtons[i].setFillColor(sf::Color::White);
+		}
+	}
 }
 
 void Game::moveScreen()
@@ -490,6 +542,15 @@ void Game::levelEditingUpdate()
 			
 		}
 	}
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::F5))
+	{
+		saveLevelData(levelData, level1);
+	}
+	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::F6))
+	{
+		saveLevelData(levelData, level2);
+	}
 	
 }
 
@@ -523,6 +584,14 @@ void Game::render()
 			m_window.draw(buttons);
 		}
 		for (auto& buttons : MenuText)
+		{
+			m_window.draw(buttons);
+		}
+		for (auto& buttons : levelButtons)
+		{
+			m_window.draw(buttons);
+		}
+		for (auto& buttons : levelButtonText)
 		{
 			m_window.draw(buttons);
 		}
@@ -622,9 +691,9 @@ void Game::saveLevelData(int levelData[numCols][numRows], const char* filename)
 void Game::loadLevelData(int levelData[numCols][numRows], const char* filename) {
 	std::ifstream file(filename);
 	if (file.is_open()) {
-		for (int i = 0; i < numRows; ++i) {
-			for (int j = 0; j < numCols; ++j) {
-				file >> levelData[j][i];
+		for (int row = 0; row < numRows; row++) {
+			for (int col = 0; col < numCols; col++) {
+				file >> levelData[col][row];
 			}
 		}
 		file.close();
@@ -650,6 +719,22 @@ void Game::init()
 	winText.setPosition(250, 250);
 	winText.setString("You Win!");
 	winText.setFont(m_ArialBlackfont);
+
+	levelButtons[0].setFillColor(sf::Color::White);
+	levelButtons[0].setSize(sf::Vector2f(45, 45));
+	levelButtons[1].setSize(sf::Vector2f(45, 45));
+	levelButtons[1].setFillColor(sf::Color::White);
+	levelButtons[0].setPosition(sf::Vector2f(50, 450));
+	levelButtons[1].setPosition(sf::Vector2f(levelButtons[0].getPosition().x, levelButtons[0].getPosition().y + 60));
+
+	for (int i=0; i<2; i++)
+	{
+		levelButtonText[i].setCharacterSize(25U);
+		levelButtonText[i].setFillColor(sf::Color::Black);
+		levelButtonText[i].setPosition(levelButtons[i].getPosition().x+12, levelButtons[i].getPosition().y+5);
+		levelButtonText[i].setString(to_string(i+1));
+		levelButtonText[i].setFont(m_ArialBlackfont);
+	}
 
 	for (int i = 0; i < 3; i++)
 	{
@@ -687,7 +772,7 @@ void Game::init()
 
 			if (levelData[col][row] == 1)
 			{
-				
+				cout << "Tile 1 rendered";
 				level[col][row].setSize(sf::Vector2f(70, 30));
 				level[col][row].setPosition(row * 70, col * 30);
 				level[col][row].setFillColor(sf::Color::Red);
@@ -707,7 +792,7 @@ void Game::init()
 			}
 			if (levelData[col][row] == 2)
 			{
-				
+				cout << "Tile 2 rendered";
 				level[col][row].setSize(sf::Vector2f(70, 30));
 				level[col][row].setPosition(row * 70, col * 30);
 				level[col][row].setOutlineColor(sf::Color::White);
@@ -717,7 +802,7 @@ void Game::init()
 			}
 			if (levelData[col][row] == 5)
 			{
-
+				cout << "Tile 5 rendered";
 				level[col][row].setTexture(&mapItemsTexture);
 				level[col][row].setSize(sf::Vector2f(70, 30));
 				level[col][row].setPosition(row * 70, col * 30);
@@ -727,15 +812,18 @@ void Game::init()
 			}
 			if (levelData[col][row] == 3)
 			{
+				cout << "Tile 3 rendered";
 				level[col][row].setTexture(&mapItemsTexture);
 				level[col][row].setSize(sf::Vector2f(70, 30));
 				level[col][row].setPosition(row * 70, col * 30);
 				level[col][row].setOutlineColor(sf::Color::White);
+				level[col][row].setFillColor(sf::Color::Cyan);
 				level[col][row].setOutlineThickness(0.0f);
 				level[col][row].setTextureRect(mapItemsI[0]);
 			}
 			if (levelData[col][row] == 100)
 			{
+				cout << "Tile 100 rendered";
 				level[col][row].setSize(sf::Vector2f(70, 30));
 				level[col][row].setPosition(row * 70, col * 30);
 				level[col][row].setFillColor(sf::Color::Cyan);

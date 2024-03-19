@@ -18,7 +18,7 @@ struct TileInfo {
 	sf::Clock timer;    // Timer to track the movement duration
 };
 
-enum class GameMode{LevelEditing, Playing, MainMenu, WinScreen};
+enum class GameMode{LevelEditing, Playing, MainMenu, WinScreen, LevelSelect};
 
 class Game
 {
@@ -45,8 +45,12 @@ private:
 	
 	void setupFontAndText();
 	void levelInit();
-
+	int levelNo{ 1 };
 	bool winTilePlacement{ false };
+
+	sf::RectangleShape levelButtons[2];
+	sf::Text levelButtonText[2];
+
 
 	GameMode gamemode{ GameMode::MainMenu };
 	sf::RenderWindow m_window; // main SFML window
@@ -93,7 +97,8 @@ private:
 	void saveLevelData(int levelData[numCols][numRows], const char* filename);
 	void loadLevelData(int levelData[numCols][numRows], const char* filename);
 
-	const char* filename = "ASSETS\\LEVELDATA\\levelData.txt";
+	const char* level1 = "ASSETS\\LEVELDATA\\levelData.txt";
+	const char* level2 = "ASSETS\\LEVELDATA\\levelData2.txt";
 	bool selectingTile{ true };
 	int currentTile{ 1 };
 	sf::RectangleShape selectorButton[5];
