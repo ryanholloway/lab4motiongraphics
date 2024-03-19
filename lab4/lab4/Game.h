@@ -104,7 +104,7 @@ private:
 	bool selectingTile{ true };
 	int currentTile{ 1 };
 	sf::RectangleShape selectorButton[5];
-	float savetimer{ 2 };
+	float savetimer{ 3 };
 
 	sf::Text saving;
 	bool savingB{ false };

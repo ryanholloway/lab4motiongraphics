@@ -160,10 +160,24 @@ void Game::update(sf::Time t_deltaTime)
 		if (savetimer >= 0)
 		{
 			savetimer -= t_deltaTime.asSeconds();
+			switch (static_cast<int>(savetimer))
+			{
+			case 2:
+				saving.setString("Saving");
+				break;
+			case 1:
+				saving.setString("Saving.");
+				break;
+			case 0:
+				saving.setString("Saving..");
+				break;
+			default:
+				break;
+			}
 		}
 		else
 		{
-			savetimer = 2;
+			savetimer = 3;
 			savingB = false;
 		}
 		
