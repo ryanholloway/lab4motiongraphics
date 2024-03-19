@@ -96,12 +96,18 @@ private:
 	
 	void saveLevelData(int levelData[numCols][numRows], const char* filename);
 	void loadLevelData(int levelData[numCols][numRows], const char* filename);
+	sf::RectangleShape buttonSelector;
+
 
 	const char* level1 = "ASSETS\\LEVELDATA\\levelData.txt";
 	const char* level2 = "ASSETS\\LEVELDATA\\levelData2.txt";
 	bool selectingTile{ true };
 	int currentTile{ 1 };
 	sf::RectangleShape selectorButton[5];
+	float savetimer{ 2 };
+
+	sf::Text saving;
+	bool savingB{ false };
 	
 	sf::RectangleShape MenuButtons[3];
 	sf::Text MenuText[3];

@@ -112,9 +112,11 @@ void Game::processKeys(sf::Event t_event)
 				break;
 			case 1:
 				saveLevelData(levelData, level1);
+				savingB = true;
 				break;
 			case 2:
 				saveLevelData(levelData, level2);
+				savingB = true;
 				break;
 			default:
 				break;
@@ -153,7 +155,19 @@ void Game::update(sf::Time t_deltaTime)
 		break;
 	}
 
-
+	if (savingB)
+	{
+		if (savetimer >= 0)
+		{
+			savetimer -= t_deltaTime.asSeconds();
+		}
+		else
+		{
+			savetimer = 2;
+			savingB = false;
+		}
+		
+	}
 
 
 }
@@ -288,7 +302,7 @@ void Game::menuUpdate()
 
 		if (MenuButtons[i].getGlobalBounds().contains(sf::Mouse::getPosition(m_window).x, sf::Mouse::getPosition(m_window).y))
 		{
-			MenuButtons[i].setFillColor(sf::Color::Cyan);
+			MenuButtons[i].setFillColor(sf::Color(14, 10, 104));
 			if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
 			{
 				switch (i)
@@ -559,11 +573,12 @@ void Game::levelEditingUpdate()
 /// </summary>
 void Game::render()
 {
-	m_window.clear(sf::Color::Black);
+	m_window.clear(sf::Color(186, 138, 175));
 	switch (gamemode)
 	{
 	case GameMode::LevelEditing:
 		brickDraw();
+		m_window.draw(buttonSelector);
 		if (selectingTile)
 		{
 			for (auto& button : selectorButton)
@@ -595,6 +610,11 @@ void Game::render()
 		{
 			m_window.draw(buttons);
 		}
+		if (savingB)
+		{
+			m_window.draw(saving);
+		}
+		
 		break;
 	case GameMode::WinScreen:
 		m_window.draw(winText);
@@ -642,8 +662,8 @@ void Game::setupFontAndText()
 		std::cout << "problem loading mapItems" << std::endl;
 	}
 	selecting.setCharacterSize(25U);
-	selecting.setFillColor(sf::Color::Cyan);
-	selecting.setOutlineColor(sf::Color::Red);
+	selecting.setFillColor(sf::Color(134, 133, 157));
+	selecting.setOutlineColor(sf::Color(16, 13, 85));
 	selecting.setOutlineThickness(2);
 	selecting.setFont(m_ArialBlackfont);
 	selecting.setPosition(275, 40);
@@ -714,6 +734,12 @@ void Game::init()
 	MenuText[1].setString("Edit Level");
 	MenuText[2].setString("Exit");
 
+	saving.setFillColor(sf::Color::White);
+	saving.setCharacterSize(20U);
+	saving.setPosition(650, 550);
+	saving.setString("Saving...");
+	saving.setFont(m_ArialBlackfont);
+
 	winText.setFillColor(sf::Color::White);
 	winText.setCharacterSize(50U);
 	winText.setPosition(250, 250);
@@ -747,7 +773,9 @@ void Game::init()
 		MenuText[i].setFont(m_ArialBlackfont);
 		
 	}
-	
+	buttonSelector.setSize(sf::Vector2f(110, 300));
+	buttonSelector.setPosition(10, 5);
+	buttonSelector.setFillColor(sf::Color::Black);
 	for (int i = 0; i < 5; i++)
 	{
 		selectorButton[i].setSize(sf::Vector2f(100, 50));
